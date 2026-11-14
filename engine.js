@@ -26,22 +26,22 @@ const textQ = (prompt, answer, steps, extra = {}) => ({ type: 'text', prompt, an
 const norm = s => String(s).toLowerCase().replace(/\s+/g, '').replace(/[,\[\]{}()]/g, ' ').replace(/\s+/g, ',').replace(/^,|,$/g, '');
 function parseNum(s) { s = String(s).trim().replace(/,/g, ''); if (/^0b[01]+$/i.test(s)) return parseInt(s.slice(2), 2); if (/^0x[0-9a-f]+$/i.test(s)) return parseInt(s, 16); const m = s.match(/^[-+]?\d*\.?\d+(e[-+]?\d+)?/i); return m ? parseFloat(m[0]) : NaN; }
 
-/* ---------- courses: UT Dallas BS Computer Science core (2026 catalog) ---------- */
+/* ---------- courses: a standard CS undergraduate core ---------- */
 const COURSES = [
-  { id: '1337', code: 'CS 1337', name: 'Computer Science I', color: '#7CFFB2', book: 'Gaddis, Starting Out with C++' },
-  { id: '2305', code: 'CS 2305', name: 'Discrete Math I', color: '#FFD166', book: 'Rosen, Discrete Mathematics and Its Applications' },
-  { id: '2336', code: 'CS 2336', name: 'Computer Science II', color: '#5CC8FF', book: 'Liang, Intro to Java Programming and Data Structures' },
-  { id: '2340', code: 'CS 2340', name: 'Computer Architecture', color: '#FF7AC6', book: 'Patterson & Hennessy, Computer Organization and Design (MIPS)' },
-  { id: '3341', code: 'CS 3341', name: 'Probability & Statistics', color: '#B69CFF', book: 'Baron, Probability and Statistics for Computer Scientists' },
-  { id: '3345', code: 'CS 3345', name: 'Data Structures & Algorithms', color: '#FF9F5A', book: 'Weiss, Data Structures and Algorithm Analysis in Java' },
-  { id: '3354', code: 'CS 3354', name: 'Software Engineering', color: '#62E6D8', book: 'Sommerville, Software Engineering' },
-  { id: '3377', code: 'CS 3377', name: 'Systems Programming in UNIX', color: '#C3F25C', book: 'Stevens & Rago, Advanced Programming in the UNIX Environment' },
-  { id: '4337', code: 'CS 4337', name: 'Programming Language Paradigms', color: '#FF6B6B', book: 'Sebesta, Concepts of Programming Languages' },
-  { id: '4341', code: 'CS 4341', name: 'Digital Logic & Computer Design', color: '#4DE1FF', book: 'Mano & Ciletti, Digital Design' },
-  { id: '4347', code: 'CS 4347', name: 'Database Systems', color: '#FFC26B', book: 'Elmasri & Navathe, Fundamentals of Database Systems' },
-  { id: '4348', code: 'CS 4348', name: 'Operating Systems', color: '#9DB4FF', book: 'Silberschatz, Operating System Concepts' },
-  { id: '4349', code: 'CS 4349', name: 'Advanced Algorithms', color: '#FF8AD8', book: 'Cormen et al., Introduction to Algorithms (CLRS)' },
-  { id: '4384', code: 'CS 4384', name: 'Automata Theory', color: '#A6FF6B', book: 'Sipser, Introduction to the Theory of Computation' },
+  { id: '1337', code: 'CS1', utd: 'CS 1337', name: 'Programming in C++', color: '#7CFFB2', book: 'Gaddis, Starting Out with C++' },
+  { id: '2305', code: 'DISCRETE', utd: 'CS 2305', name: 'Discrete Mathematics', color: '#FFD166', book: 'Rosen, Discrete Mathematics and Its Applications' },
+  { id: '2336', code: 'CS2', utd: 'CS 2336', name: 'Object-Oriented Programming in Java', color: '#5CC8FF', book: 'Liang, Intro to Java Programming and Data Structures' },
+  { id: '2340', code: 'ARCH', utd: 'CS 2340', name: 'Computer Architecture', color: '#FF7AC6', book: 'Patterson & Hennessy, Computer Organization and Design (MIPS)' },
+  { id: '3341', code: 'PROB', utd: 'CS 3341', name: 'Probability & Statistics', color: '#B69CFF', book: 'Baron, Probability and Statistics for Computer Scientists' },
+  { id: '3345', code: 'DSA', utd: 'CS 3345', name: 'Data Structures & Algorithms', color: '#FF9F5A', book: 'Weiss, Data Structures and Algorithm Analysis in Java' },
+  { id: '3354', code: 'SWE', utd: 'CS 3354', name: 'Software Engineering', color: '#62E6D8', book: 'Sommerville, Software Engineering' },
+  { id: '3377', code: 'UNIX', utd: 'CS 3377', name: 'Systems Programming in UNIX', color: '#C3F25C', book: 'Stevens & Rago, Advanced Programming in the UNIX Environment' },
+  { id: '4337', code: 'PL', utd: 'CS 4337', name: 'Programming Language Paradigms', color: '#FF6B6B', book: 'Sebesta, Concepts of Programming Languages' },
+  { id: '4341', code: 'LOGIC', utd: 'CS 4341', name: 'Digital Logic & Computer Design', color: '#4DE1FF', book: 'Mano & Ciletti, Digital Design' },
+  { id: '4347', code: 'DB', utd: 'CS 4347', name: 'Database Systems', color: '#FFC26B', book: 'Elmasri & Navathe, Fundamentals of Database Systems' },
+  { id: '4348', code: 'OS', utd: 'CS 4348', name: 'Operating Systems', color: '#9DB4FF', book: 'Silberschatz, Operating System Concepts' },
+  { id: '4349', code: 'ALGO', utd: 'CS 4349', name: 'Advanced Algorithms', color: '#FF8AD8', book: 'Cormen et al., Introduction to Algorithms (CLRS)' },
+  { id: '4384', code: 'THEORY', utd: 'CS 4384', name: 'Automata Theory', color: '#A6FF6B', book: 'Sipser, Introduction to the Theory of Computation' },
 ];
 const CH = []; // chapters pushed by content files
 const VIZ = []; // visualizers: {id, title, icon, blurb, mount(box)}
@@ -89,10 +89,10 @@ addEventListener('hashchange', route);
 function viewHome() {
   const total = CH.length ? Math.round(CH.reduce((s, c) => s + mastery(c.id), 0) / CH.length) : 0, next = CH.find(c => mastery(c.id) < 80) || CH[0];
   main.innerHTML = `<section class="hero"><div class="hero-txt"><div class="kick">// computer science, compiled for humans</div><h1>Read it. Trace it.<br><span class="grad">Run it</span> until it compiles in your head.</h1>
-    <p>Every topic in the UT Dallas CS core, from your first <code>for</code> loop to automata theory. Each one is a short lesson, a worked example you step through line by line, and endless fresh problems. Plus live visualizers for the stuff that's hard to picture.</p>
+    <p>Every topic in a standard computer science degree, from your first <code>for</code> loop to automata theory. Each one is a short lesson, a worked example you step through line by line, and endless fresh problems. Plus live visualizers for the stuff that's hard to picture.</p>
     <div class="cta"><a class="btn pri" href="#/c/${next.id}">${S.xp ? 'resume' : 'start'}: ${next.title} →</a><a class="btn" href="#/viz">◆ open the visualizers</a></div></div>
     <div class="term" aria-hidden="true"><div class="tbar"><i></i><i></i><i></i><span>bytewise — zsh</span></div><pre id="termTxt"></pre></div></section>
-    <section class="stats"><div class="stat"><b>${CH.length}</b><span>topics</span></div><div class="stat"><b>${COURSES.length}</b><span>UTD courses</span></div><div class="stat"><b>${VIZ.length}</b><span>visualizers</span></div><div class="stat"><b>${total}%</b><span>mastered</span></div><div class="stat"><b>${S.xp}</b><span>XP</span></div></section>
+    <section class="stats"><div class="stat"><b>${CH.length}</b><span>topics</span></div><div class="stat"><b>${COURSES.length}</b><span>courses</span></div><div class="stat"><b>${VIZ.length}</b><span>visualizers</span></div><div class="stat"><b>${total}%</b><span>mastered</span></div><div class="stat"><b>${S.xp}</b><span>XP</span></div></section>
     ${COURSES.map(co => { const chs = CH.filter(c => c.course === co.id); if (!chs.length) return ''; const m = Math.round(chs.reduce((s, c) => s + mastery(c.id), 0) / chs.length);
       return `<section class="course" style="--c:${co.color}"><div class="course-h"><div><span class="code-tag">${co.code}</span><h2>${co.name}</h2><p class="book">📘 ${co.book}</p></div><div class="cm"><b>${m}%</b>${bar(m, co.color)}<a class="btn sm" href="#/exam/${co.id}">exam →</a></div></div>
         <div class="cgrid">${chs.map((c, i) => `<a class="card ${mastery(c.id) >= 80 ? 'done' : ''}" href="#/c/${c.id}" style="animation-delay:${i * 40}ms"><span class="file">${c.file}</span><b>${c.title}</b><small>${c.blurb}</small>${bar(mastery(c.id), co.color)}</a>`).join('')}</div></section>`; }).join('')}`;
