@@ -10,11 +10,9 @@ const R = {
 };
 const sig = (x, n = 3) => { if (!isFinite(x)) return String(x); if (x === 0) return '0'; const v = +x.toPrecision(n); return Math.abs(v) >= 1e6 || Math.abs(v) < 1e-3 ? v.toExponential(n - 1) : String(v); };
 const code = (s, lang = '') => `<pre class="code ${lang}"><code>${hl(s)}</code></pre>`;
-function hl(s) { // tiny syntax highlighter (Java/C/Python-ish)
-  return esc(s).replace(/(\/\/[^\n]*|#[^\n{]*$)/gm, '<i class="cm">$1</i>')
-    .replace(/\b(int|double|float|char|boolean|void|String|return|if|else|for|while|do|new|class|public|private|static|final|null|true|false|this|extends|implements|interface|abstract|struct|def|in|range|print|switch|case|break|continue|try|catch|throw|throws|import|void|long|unsigned|const|auto|lambda|let|fun|val|var|SELECT|FROM|WHERE|JOIN|ON|GROUP BY|HAVING|ORDER BY|INSERT|INTO|VALUES|UPDATE|SET|DELETE|COUNT|SUM|AVG|MAX|MIN|AS|AND|OR|NOT|DISTINCT|PRIMARY KEY|FOREIGN KEY|REFERENCES|CREATE TABLE)\b/g, '<b class="kw">$1</b>')
-    .replace(/(&quot;[^&]*?&quot;|'[^'\n]?')/g, '<i class="st">$1</i>')
-    .replace(/\b(\d+(\.\d+)?)\b/g, '<i class="nu">$1</i>');
+function hl(s) { // single-pass tokenizer so later rules never touch earlier markup
+  const KW = /^(?:int|double|float|char|boolean|void|String|return|if|else|for|while|do|new|class|public|private|static|final|null|true|false|this|extends|implements|interface|abstract|struct|def|in|range|print|switch|case|break|continue|try|catch|throw|throws|import|void|long|unsigned|const|auto|lambda|let|fun|val|var|SELECT|FROM|WHERE|JOIN|ON|GROUP BY|HAVING|ORDER BY|INSERT|INTO|VALUES|UPDATE|SET|DELETE|COUNT|SUM|AVG|MAX|MIN|AS|AND|OR|NOT|DISTINCT|PRIMARY KEY|FOREIGN KEY|REFERENCES|CREATE TABLE)$/;
+  return esc(s).replace(/(\/\/[^\n]*|#[^\n{]*$)|(&quot;.*?&quot;|'[^'\n]?')|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_]+(?: (?:BY|KEY|TABLE))?)\b/gm, (m, cm, st, nu, w) => cm ? `<i class="cm">${cm}</i>` : st ? `<i class="st">${st}</i>` : nu ? `<i class="nu">${nu}</i>` : KW.test(w) ? `<b class="kw">${w}</b>` : w);
 }
 const EQ = s => `<div class="eq">${s}</div>`;
 const EX = (t, steps, ans) => `<div class="ex"><b>worked example</b><p>${t}</p><ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>${ans ? `<p><b>Answer: ${ans}</b></p>` : ''}</div>`;

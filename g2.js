@@ -165,3 +165,6 @@ CH.push({ id: 'g20', course: '1337', ext: '.cpp', title: 'Ch 20 · Recursion', b
       ${TRICK('Anything recursive can be written with a loop (and maybe an explicit stack). Recursion costs a stack frame per call; iteration usually uses less memory.')}`,
       () => { const n = R.int(2, 12); return numQ(`Minimum number of moves for Towers of Hanoi with ${n} disks?`, 2 ** n - 1, 'moves', ['move n − 1 disks aside, move the largest, move n − 1 back: T(n) = 2T(n − 1) + 1', `T(n) = 2ⁿ − 1 = <b>${2 ** n - 1}</b>`], { abs: 0 }); }),
   ] });
+
+/* readable file names in the sidebar */
+Object.entries({ g2: '02-intro', g3: '03-expressions', g4: '04-decisions', g5: '05-loops-files', g6: '06-functions', g7: '07-arrays-vectors', g8: '08-search-sort', g9: '09-pointers', g10: '10-strings', g11: '11-structs', g12: '12-adv-files', g13: '13-classes', g14: '14-more-classes', g15: '15-inheritance', g16: '16-templates-stl', g17: '17-linked-lists', g20: '20-recursion' }).forEach(([id, f]) => { const c = chById(id); if (c) c.file = f + '.cpp'; });
