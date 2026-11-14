@@ -95,3 +95,9 @@ main,.layout>main{min-width:0}
 
 .sitefoot{padding:18px clamp(16px,4vw,48px) 28px;border-top:1px solid var(--line, #ccc);font-size:13px;opacity:.75;margin-left:var(--footml,0)}.sitefoot p{margin:4px 0}.sitefoot summary{cursor:pointer}
 @media (min-width:901px){.sitefoot{margin-left:270px}}
+.flowc{display:flex;flex-direction:column;align-items:center;gap:2px;margin:14px 0}
+.flowc .fc{padding:8px 16px;border:2px solid var(--fg,#e8e8e8);font:600 13px "JetBrains Mono",monospace;text-align:center;min-width:220px;animation:fcin .4s ease both}
+.flowc .fc.term{border-radius:999px}.flowc .fc.io{transform:skewX(-14deg)}.flowc .fc.proc{border-radius:4px}.flowc .fc.dec{border-color:#FFD166;color:#FFD166}
+.flowc .fca{opacity:.6;font-size:14px;line-height:1}
+.flowc .fc:nth-child(3){animation-delay:.1s}.flowc .fc:nth-child(5){animation-delay:.2s}.flowc .fc:nth-child(7){animation-delay:.3s}.flowc .fc:nth-child(9){animation-delay:.4s}.flowc .fc:nth-child(11){animation-delay:.5s}.flowc .fc:nth-child(13){animation-delay:.6s}
+@keyframes fcin{from{opacity:0;transform:translateY(-6px)}}

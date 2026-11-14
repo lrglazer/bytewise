@@ -28,6 +28,7 @@ function parseNum(s) { s = String(s).trim().replace(/,/g, ''); if (/^0b[01]+$/i.
 
 /* ---------- courses: a standard CS undergraduate core ---------- */
 const COURSES = [
+  { id: '1436', code: 'INTRO', utd: 'CS 1436', name: 'Programming Fundamentals', color: '#FFE66B', book: 'Gaddis, Starting Out with C++ (ch 1–8) + problem solving' },
   { id: '1337', code: 'CS1', utd: 'CS 1337', name: 'Programming in C++', color: '#7CFFB2', book: 'Gaddis, Starting Out with C++' },
   { id: '2305', code: 'DISCRETE', utd: 'CS 2305', name: 'Discrete Mathematics', color: '#FFD166', book: 'Rosen, Discrete Mathematics and Its Applications' },
   { id: '2336', code: 'CS2', utd: 'CS 2336', name: 'Object-Oriented Programming in Java', color: '#5CC8FF', book: 'Liang, Intro to Java Programming and Data Structures' },
