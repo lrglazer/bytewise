@@ -16,6 +16,10 @@ function hl(s) { // tiny syntax highlighter (Java/C/Python-ish)
     .replace(/(&quot;[^&]*?&quot;|'[^'\n]?')/g, '<i class="st">$1</i>')
     .replace(/\b(\d+(\.\d+)?)\b/g, '<i class="nu">$1</i>');
 }
+const EQ = s => `<div class="eq">${s}</div>`;
+const EX = (t, steps, ans) => `<div class="ex"><b>worked example</b><p>${t}</p><ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>${ans ? `<p><b>Answer: ${ans}</b></p>` : ''}</div>`;
+const Sec = (sec, h, body, gen, viz, vizOpts) => ({ sec, h, body, gen, viz, vizOpts });
+const replaceCourse = id => { for (let k = CH.length - 1; k >= 0; k--) if (CH[k].course === id) CH.splice(k, 1); };
 const TRICK = s => `<div class="trick"><b>⚡ exam trick</b> ${s}</div>`;
 const mc = (prompt, options, answer, steps, extra = {}) => ({ type: 'mc', prompt, options, answer, steps, ...extra });
 function mcFrom(prompt, correct, wrongs, steps, extra) { correct = String(correct); const opts = R.shuffle([correct, ...R.shuffle([...new Set(wrongs.map(String))].filter(w => w !== correct)).slice(0, 3)]); return mc(prompt, opts, opts.indexOf(correct), steps, extra); }
@@ -111,12 +115,16 @@ function viewChapter(c, tab) {
 function learnView(c, body) {
   let i = 0;
   const draw = () => { if (cleanup) { cleanup(); cleanup = null; } const L = c.learn[i];
-    body.innerHTML = `<article class="page"><div class="pg">lesson ${i + 1}/${c.learn.length}</div><h2>${L.h}</h2>${L.body}<div id="wbox"></div><div class="pnav">${i ? '<button class="btn" id="prev">← back</button>' : '<span></span>'}${i < c.learn.length - 1 ? '<button class="btn pri" id="next">next →</button>' : `<a class="btn pri" href="#/c/${c.id}/watch">trace an example →</a>`}</div></article>`;
+    body.innerHTML = `${c.learn.length > 1 ? `<div class="toc">${c.learn.map((x, k) => `<button class="tocb ${k === i ? 'on' : ''}" data-k="${k}"><span>${x.sec || k + 1}</span>${x.h}</button>`).join('')}</div>` : ''}
+      <article class="page"><div class="pg">${L.sec ? 'section ' + L.sec + ' · ' : 'lesson '}${i + 1} of ${c.learn.length}</div><h2>${L.h}</h2>${L.body}<div id="wbox"></div>${L.gen ? '<div class="secq"><div class="secqh"><b>✎ try it: ' + (L.sec ? 'section ' + L.sec : 'this lesson') + '</b><button class="btn sm" id="sqn">↻ new problem</button></div><div id="sqb"></div></div>' : ''}
+      <div class="pnav">${i ? '<button class="btn" id="prev">← back</button>' : '<span></span>'}${i < c.learn.length - 1 ? `<button class="btn pri" id="next">next: ${c.learn[i + 1].sec || ''} ${c.learn[i + 1].h} →</button>` : `<a class="btn pri" href="#/c/${c.id}/watch">trace an example →</a>`}</div></article>`;
     if (L.viz) { const v = VIZ.find(x => x.id === L.viz); if (v) { const b = $('#wbox'); b.className = 'widget'; b.innerHTML = `<div class="wh">◆ ${v.title}</div><div class="wb"></div>`; cleanup = v.mount($('.wb', b), L.vizOpts) || null; } }
-    $('#prev') && ($('#prev').onclick = () => { i--; draw(); }); $('#next') && ($('#next').onclick = () => { i++; draw(); }); };
+    if (L.gen) { const run = async () => { const q = L.gen(); q.ch = c.id; const box = $('#sqb'); box.innerHTML = qHTML(q); const r = await grade(q, box); record(c.id, r.ok, q); if (r.ok) pop('+10 XP'); showResult(q, r, box); }; run(); $('#sqn').onclick = run; }
+    $$('.tocb').forEach(x => x.onclick = () => { i = +x.dataset.k; draw(); scrollTo(0, 0); });
+    $('#prev') && ($('#prev').onclick = () => { i--; draw(); scrollTo(0, 0); }); $('#next') && ($('#next').onclick = () => { i++; draw(); scrollTo(0, 0); }); };
   draw();
 }
-const newQ = c => { const q = c.gen(); q.ch = c.id; return q; };
+const newQ = c => { const gens = c.learn.filter(l => l.gen).map(l => l.gen); const q = c.gen && (!gens.length || Math.random() < .3) ? c.gen() : R.pick(gens)(); q.ch = c.id; return q; };
 function qHTML(q, o = {}) {
   let a = '';
   if (q.type === 'mc') a = `<div class="opts">${q.options.map((x, k) => `<button class="opt" data-k="${k}"><span class="key">${'ABCDEF'[k]}</span><span>${x}</span></button>`).join('')}</div>`;
@@ -126,7 +134,7 @@ function qHTML(q, o = {}) {
 function grade(q, root) {
   return new Promise(res => {
     if (q.type === 'mc') $$('.opt', root).forEach(b => b.onclick = () => res({ ok: +b.dataset.k === q.answer, given: +b.dataset.k }));
-    else $('form', root).onsubmit = e => { e.preventDefault(); const v = $('#inp').value; if (!v.trim()) return;
+    else $('form', root).onsubmit = e => { e.preventDefault(); const v = $('#inp', root).value; if (!v.trim()) return;
       if (q.type === 'num') { const x = parseNum(v); if (isNaN(x)) { $('#inp').classList.add('bad'); return; } res({ ok: q.abs != null ? Math.abs(x - q.value) <= q.abs : Math.abs(x - q.value) <= Math.max(Math.abs(q.value) * q.tol, 1e-9), given: v }); }
       else res({ ok: !!q.check(v), given: v }); };
   });
