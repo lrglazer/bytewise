@@ -1,6 +1,6 @@
 # Bytewise
 
-Computer science, compiled for humans. Every topic in the UT Dallas BS Computer Science core, from CS 1337 through CS 4384 Automata Theory, taught as:
+Computer science, compiled for humans. Every topic in a standard BS Computer Science core (syllabi based on UT Dallas), from intro programming through automata theory, taught as:
 
 - **read**: a short lesson with the exam tricks built in
 - **trace**: a worked example you step through

@@ -115,13 +115,20 @@ function learnView(c, body) {
   let i = 0;
   const draw = () => { if (cleanup) { cleanup(); cleanup = null; } const L = c.learn[i];
     body.innerHTML = `${c.learn.length > 1 ? `<div class="toc">${c.learn.map((x, k) => `<button class="tocb ${k === i ? 'on' : ''}" data-k="${k}"><span>${x.sec || k + 1}</span>${x.h}</button>`).join('')}</div>` : ''}
-      <article class="page"><div class="pg">${L.sec ? 'section ' + L.sec + ' · ' : 'lesson '}${i + 1} of ${c.learn.length}</div><h2>${L.h}</h2>${L.body}<div id="wbox"></div>${L.gen ? '<div class="secq"><div class="secqh"><b>✎ try it: ' + (L.sec ? 'section ' + L.sec : 'this lesson') + '</b><button class="btn sm" id="sqn">↻ new problem</button></div><div id="sqb"></div></div>' : ''}
+      <article class="page"><div class="pg">${L.sec ? 'section ' + L.sec + ' · ' : 'lesson '}${i + 1} of ${c.learn.length}</div><h2>${L.h}</h2>${plainBox(c, i, L)}${L.body}<div id="wbox"></div>${L.gen ? '<div class="secq"><div class="secqh"><b>✎ try it: ' + (L.sec ? 'section ' + L.sec : 'this lesson') + '</b><button class="btn sm" id="sqn">↻ new problem</button></div><div id="sqb"></div></div>' : ''}
       <div class="pnav">${i ? '<button class="btn" id="prev">← back</button>' : '<span></span>'}${i < c.learn.length - 1 ? `<button class="btn pri" id="next">next: ${c.learn[i + 1].sec || ''} ${c.learn[i + 1].h} →</button>` : `<a class="btn pri" href="#/c/${c.id}/watch">trace an example →</a>`}</div></article>`;
     if (L.viz) { const v = VIZ.find(x => x.id === L.viz); if (v) { const b = $('#wbox'); b.className = 'widget'; b.innerHTML = `<div class="wh">◆ ${v.title}</div><div class="wb"></div>`; cleanup = v.mount($('.wb', b), L.vizOpts) || null; } }
     if (L.gen) { const run = async () => { const q = L.gen(); q.ch = c.id; const box = $('#sqb'); box.innerHTML = qHTML(q); const r = await grade(q, box); record(c.id, r.ok, q); if (r.ok) pop('+10 XP'); showResult(q, r, box); }; run(); $('#sqn').onclick = run; }
+    if (typeof glossify === 'function') glossify($('.page', body), c.course);
     $$('.tocb').forEach(x => x.onclick = () => { i = +x.dataset.k; draw(); scrollTo(0, 0); });
     $('#prev') && ($('#prev').onclick = () => { i--; draw(); scrollTo(0, 0); }); $('#next') && ($('#next').onclick = () => { i++; draw(); scrollTo(0, 0); }); };
   draw();
+}
+/* "In plain English" opener: a short everyday-analogy intro above every section (data in plain.js). */
+const PLAIN_ICON = `<svg class="plain-ic" viewBox="0 0 48 48" aria-hidden="true"><path class="pb" d="M8 9h32a4 4 0 0 1 4 4v17a4 4 0 0 1-4 4H22l-8 7v-7H8a4 4 0 0 1-4-4V13a4 4 0 0 1 4-4z"/><path class="pl" d="M24 14.5a6.2 6.2 0 0 0-3.6 11.2c.7.5 1.1 1.2 1.1 2v.8h5v-.8c0-.8.4-1.5 1.1-2A6.2 6.2 0 0 0 24 14.5z"/><path class="pf" d="M22 31h4"/><path class="pr" d="M24 9.5v-3M33 13l2-2M15 13l-2-2"/></svg>`;
+function plainBox(c, i, L) {
+  const t = L.plain || (typeof PLAIN !== 'undefined' && PLAIN[c.id] && PLAIN[c.id][i]);
+  return t ? `<aside class="plain" aria-label="In plain English">${PLAIN_ICON}<div class="plain-t"><b class="plain-h">In plain English</b><p>${t}</p></div></aside>` : '';
 }
 const newQ = c => { const gens = c.learn.filter(l => l.gen).map(l => l.gen); const q = c.gen && (!gens.length || Math.random() < .3) ? c.gen() : R.pick(gens)(); q.ch = c.id; return q; };
 function qHTML(q, o = {}) {
